@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ResumeForge v4 – Smart Resume Builder</title>
+
+  <!-- Bootstrap -->
+  <link
+    href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+    rel="stylesheet"
+  />
+
+  <!-- Font Awesome -->
+  <link
+    rel="stylesheet"
+    href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+  />
+
+  <!-- html2pdf -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="rf-app-shell">
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg rf-navbar sticky-top">
+      <div class="container-fluid px-3 px-lg-4">
+        <div class="d-flex align-items-center gap-3">
+          <div class="rf-brand-icon">
+            <i class="fa-solid fa-file-lines"></i>
+          </div>
+          <div>
+            <div class="rf-brand-title">ResumeForge</div>
+            <div class="rf-brand-subtitle">Build a Professional Resume in Minutes</div>
+          </div>
+        </div>
+
+        <div class="d-flex align-items-center gap-2 ms-auto flex-wrap">
+          <div class="theme-toggle-wrap">
+            <span id="themeLabel" class="theme-label">Light Mode</span>
+            <div class="form-check form-switch m-0">
+              <input class="form-check-input" type="checkbox" role="switch" id="themeSwitch" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Hero -->
+    <section class="rf-hero">
+      <div class="container-fluid px-3 px-lg-4">
+        <div class="rf-hero-card">
+          <div class="row align-items-center g-4">
+            <div class="col-lg-8">
+              <span class="rf-badge-pill">
+                <i class="fa-solid fa-sparkles"></i>
+                ResumeForge
+              </span>
+              <h1 class="rf-hero-title">
+                Smart Resume Builder with ATS, Templates, Dark Mode & JSON Backup
+              </h1>
+              <p class="rf-hero-text">
+                Build a polished, ATS-friendly developer resume with live preview,
+                dynamic sections, PDF export, template switching, and local storage —
+                all in one beautiful frontend app.
+              </p>
+            </div>
+
+            <div class="col-lg-4">
+              <div class="rf-hero-stats">
+                <div class="rf-stat-card">
+                  <div class="rf-stat-label">Completion</div>
+                  <div class="rf-stat-value" id="completionStat">0%</div>
+                </div>
+                <div class="rf-stat-card">
+                  <div class="rf-stat-label">ATS Score</div>
+                  <div class="rf-stat-value" id="atsStat">0/100</div>
+                </div>
+                <div class="rf-stat-card">
+                  <div class="rf-stat-label">Template</div>
+                  <div class="rf-stat-value">
+                    <span class="template-badge active" data-template-badge="modern">Modern</span>
+                    <span class="template-badge" data-template-badge="minimal">Minimal</span>
+                    <span class="template-badge" data-template-badge="corporate">Corporate</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Main Layout -->
+    <main class="container-fluid px-3 px-lg-4 pb-5">
+      <div class="row g-4 align-items-start">
+        <!-- Left Editor -->
+        <div class="col-12 col-xl-6">
+          <div class="rf-editor-column">
+            <!-- Top Action Bar -->
+            <div class="rf-panel rf-action-panel">
+              <div class="rf-panel-head">
+                <div>
+                  <h2 class="rf-panel-title">Resume Editor</h2>
+                  <p class="rf-panel-subtitle">Fill your details, manage sections, and generate a portfolio-grade resume.</p>
+                </div>
+              </div>
+
+              <div class="rf-action-grid">
+                <button class="btn rf-btn rf-btn-primary" id="fillSampleBtn">
+                  <i class="fa-solid fa-wand-magic-sparkles"></i>
+                  Fill Sample Data
+                </button>
+
+                <button class="btn rf-btn rf-btn-outline" id="saveResumeBtn">
+                  <i class="fa-solid fa-floppy-disk"></i>
+                  Save Resume
+                </button>
+
+                <button class="btn rf-btn rf-btn-outline-danger" id="clearResumeBtn">
+                  <i class="fa-solid fa-trash-can"></i>
+                  Clear Resume
+                </button>
+
+                <button class="btn rf-btn rf-btn-outline" id="downloadPdfBtn">
+                  <i class="fa-solid fa-file-arrow-down"></i>
+                  Download PDF
+                </button>
+
+                <button class="btn rf-btn rf-btn-outline" id="printResumeBtn">
+                  <i class="fa-solid fa-print"></i>
+                  Print Resume
+                </button>
+
+                <button class="btn rf-btn rf-btn-outline" id="exportJsonBtn">
+                  <i class="fa-solid fa-file-export"></i>
+                  Export JSON
+                </button>
+
+                <label class="btn rf-btn rf-btn-outline m-0" for="importJsonInput">
+                  <i class="fa-solid fa-file-import"></i>
+                  Import JSON
+                </label>
+                <input type="file" id="importJsonInput" accept=".json" hidden />
+              </div>
+            </div>
+
+            <!-- Progress + ATS -->
+            <div class="row g-4 mt-1">
+              <div class="col-lg-7">
+                <div class="rf-panel h-100">
+                  <div class="rf-panel-head">
+                    <div>
+                      <h3 class="rf-panel-title-sm">Resume Completion</h3>
+                      <p class="rf-panel-subtitle">Track how complete your resume is.</p>
+                    </div>
+                    <span class="rf-pill" id="completionText">0%</span>
+                  </div>
+
+                  <div class="rf-progress-wrap">
+                    <div class="progress rf-progress">
+                      <div class="progress-bar" id="completionBar" role="progressbar" style="width: 0%"></div>
+                    </div>
+                  </div>
+
+                  <div class="rf-progress-meta">
+                    Fill personal info, skills, education, projects, and links to improve your completion and ATS score.
+                  </div>
+                </div>
+              </div>
+
+              <div class="col-lg-5">
+                <div class="rf-panel h-100">
+                  <div class="rf-panel-head">
+                    <div>
+                      <h3 class="rf-panel-title-sm">ATS Score</h3>
+                      <p class="rf-panel-subtitle">Keyword & structure health check.</p>
+                    </div>
+                  </div>
+
+                  <div class="ats-wrap">
+                    <div class="ats-ring" id="atsRing">
+                      <div class="ats-ring-inner">
+                        <div class="ats-score" id="atsScoreText">0</div>
+                        <div class="ats-outof">/100</div>
+                      </div>
+                    </div>
+                    <div class="ats-grade" id="atsGrade">Needs More Resume Details</div>
+                    <div class="ats-hint" id="atsHint">
+                      Fill the important sections first: personal details, summary, skills, projects, and education.
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ATS Suggestions -->
+            <div class="rf-panel mt-4">
+              <div class="rf-panel-head">
+                <div>
+                  <h3 class="rf-panel-title-sm">ATS Suggestions</h3>
+                  <p class="rf-panel-subtitle">Quick improvements to make your resume stronger.</p>
+                </div>
+              </div>
+              <ul class="rf-suggestion-list" id="atsSuggestions">
+                <li>Add your name, summary, skills, projects, and GitHub links to improve ATS performance.</li>
+              </ul>
+            </div>
+
+            <!-- Resume Tips -->
+            <div class="rf-panel mt-4">
+              <div class="rf-panel-head">
+                <div>
+                  <h3 class="rf-panel-title-sm">Resume Tips</h3>
+                  <p class="rf-panel-subtitle">Make your resume look more professional.</p>
+                </div>
+              </div>
+              <div class="rf-tips-grid">
+                <div class="rf-tip-card">
+                  <i class="fa-solid fa-code"></i>
+                  <span>Add 5–8 technical skills relevant to web development.</span>
+                </div>
+                <div class="rf-tip-card">
+                  <i class="fa-solid fa-pen-ruler"></i>
+                  <span>Keep summary crisp: 2–3 lines with role-focused keywords.</span>
+                </div>
+                <div class="rf-tip-card">
+                  <i class="fa-brands fa-github"></i>
+                  <span>Always add GitHub or live links for your best projects.</span>
+                </div>
+                <div class="rf-tip-card">
+                  <i class="fa-solid fa-chart-line"></i>
+                  <span>Mention measurable achievements and real project features.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Editor Tabs -->
+            <div class="rf-panel mt-4">
+              <div class="rf-panel-head">
+                <div>
+                  <h3 class="rf-panel-title">Edit Resume Sections</h3>
+                  <p class="rf-panel-subtitle">Click a tab to open only that section.</p>
+                </div>
+              </div>
+
+              <div class="rf-tabs-wrap">
+                <div class="rf-tabs">
+                  <button class="section-tab active" data-tab="personal">
+                    <i class="fa-solid fa-user"></i>
+                    Personal
+                  </button>
+                  <button class="section-tab" data-tab="education">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                    Education
+                  </button>
+                  <button class="section-tab" data-tab="skills">
+                    <i class="fa-solid fa-laptop-code"></i>
+                    Skills
+                  </button>
+                  <button class="section-tab" data-tab="projects">
+                    <i class="fa-solid fa-diagram-project"></i>
+                    Projects
+                  </button>
+                  <button class="section-tab" data-tab="experience">
+                    <i class="fa-solid fa-briefcase"></i>
+                    Experience
+                  </button>
+                  <button class="section-tab" data-tab="certifications">
+                    <i class="fa-solid fa-certificate"></i>
+                    Certifications
+                  </button>
+                  <button class="section-tab" data-tab="achievements">
+                    <i class="fa-solid fa-trophy"></i>
+                    Achievements
+                  </button>
+                  <button class="section-tab" data-tab="languages">
+                    <i class="fa-solid fa-language"></i>
+                    Languages
+                  </button>
+                  <button class="section-tab" data-tab="settings">
+                    <i class="fa-solid fa-sliders"></i>
+                    Settings
+                  </button>
+                </div>
+              </div>
+
+              <div class="rf-editor-body">
+                <!-- Personal -->
+                <div class="editor-pane active" data-pane="personal">
+                  <div class="rf-form-section">
+                    <div class="row g-3">
+                      <div class="col-md-6">
+                        <label for="fullName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                        <input type="text" id="fullName" class="form-control rf-input" placeholder="Aman Patil" />
+                        <div class="invalid-feedback">Full name is required.</div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="jobTitle" class="form-label">Job Title / Role</label>
+                        <input type="text" id="jobTitle" class="form-control rf-input" placeholder="MCA Student • Frontend Developer" />
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="email" class="form-label">Email <span class="text-danger">*</span></label>
+                        <input type="email" id="email" class="form-control rf-input" placeholder="aman@gmail.com" />
+                        <div class="invalid-feedback">Enter a valid email address.</div>
+                      </div>
+
+                      <div class="col-md-6">
+                        <label for="phone" class="form-label">Phone <span class="text-danger">*</span></label>
+                        <input type="text" id="phone" class="form-control rf-input" placeholder="+91 9876543210" />
+                        <div class="invalid-feedback">Enter a valid phone number.</div>
+                      </div>
+
+                      <div class="col-md-12">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text" id="address" class="form-control rf-input" placeholder="Pune, Maharashtra, India" />
+                      </div>
+
+                      <div class="col-md-4">
+                        <label for="linkedin" class="form-label">LinkedIn</label>
+                        <input type="text" id="linkedin" class="form-control rf-input" placeholder="linkedin.com/in/yourprofile" />
+                      </div>
+
+                      <div class="col-md-4">
+                        <label for="github" class="form-label">GitHub</label>
+                        <input type="text" id="github" class="form-control rf-input" placeholder="github.com/yourusername" />
+                      </div>
+
+                      <div class="col-md-4">
+                        <label for="portfolio" class="form-label">Portfolio / Website</label>
+                        <input type="text" id="portfolio" class="form-control rf-input" placeholder="yourportfolio.netlify.app" />
+                      </div>
+
+                      <div class="col-12">
+                        <label for="summary" class="form-label">Professional Summary</label>
+                        <textarea
+                          id="summary"
+                          class="form-control rf-input rf-textarea"
+                          rows="5"
+                          maxlength="350"
+                          placeholder="Write a short 2–3 line summary about your profile, strengths, and career focus..."
+                        ></textarea>
+                        <div class="field-meta">
+                          <span class="field-hint">Keep it role-focused and ATS-friendly.</span>
+                          <span class="char-counter" id="summaryCounter">0/350</span>
+                        </div>
+                      </div>
+
+                      <div class="col-12">
+                        <label for="photoInput" class="form-label">Profile Photo</label>
+                        <input type="file" id="photoInput" class="form-control rf-input" accept="image/*" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Education -->
+                <div class="editor-pane" data-pane="education">
+                  <div class="rf-form-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                      <div>
+                        <h4 class="rf-section-heading">Education</h4>
+                        <p class="rf-section-subheading">Add your MCA, BCA/BSc, diplomas, or certifications in education format.</p>
+                      </div>
+                      <button type="button" class="btn rf-btn rf-btn-primary-sm" data-action="add-education">
+                        <i class="fa-solid fa-plus"></i> Add Education
+                      </button>
+                    </div>
+                    <div id="educationContainer"></div>
+                  </div>
+                </div>
+
+                <!-- Skills -->
+                <div class="editor-pane" data-pane="skills">
+                  <div class="rf-form-section">
+                    <div class="row g-3">
+                      <div class="col-12">
+                        <label for="technicalSkills" class="form-label">Technical Skills</label>
+                        <textarea
+                          id="technicalSkills"
+                          class="form-control rf-input rf-textarea"
+                          rows="5"
+                          placeholder="HTML, CSS, JavaScript, Bootstrap, Tailwind CSS, MySQL, Git, GitHub..."
+                        ></textarea>
+                        <div class="field-meta">
+                          <span class="field-hint">Use comma-separated values.</span>
+                        </div>
+                      </div>
+
+                      <div class="col-12">
+                        <label for="softSkills" class="form-label">Soft Skills</label>
+                        <textarea
+                          id="softSkills"
+                          class="form-control rf-input rf-textarea"
+                          rows="4"
+                          placeholder="Communication, Problem Solving, Teamwork, Quick Learning..."
+                        ></textarea>
+                        <div class="field-meta">
+                          <span class="field-hint">Use comma-separated values.</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Projects -->
+                <div class="editor-pane" data-pane="projects">
+                  <div class="rf-form-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                      <div>
+                        <h4 class="rf-section-heading">Projects</h4>
+                        <p class="rf-section-subheading">Showcase your best academic or portfolio projects.</p>
+                      </div>
+                      <button type="button" class="btn rf-btn rf-btn-primary-sm" data-action="add-project">
+                        <i class="fa-solid fa-plus"></i> Add Project
+                      </button>
+                    </div>
+                    <div id="projectsContainer"></div>
+                  </div>
+                </div>
+
+                <!-- Experience -->
+                <div class="editor-pane" data-pane="experience">
+                  <div class="rf-form-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                      <div>
+                        <h4 class="rf-section-heading">Experience / Internship</h4>
+                        <p class="rf-section-subheading">Include internships, freelance work, training, or practical roles.</p>
+                      </div>
+                      <button type="button" class="btn rf-btn rf-btn-primary-sm" data-action="add-experience">
+                        <i class="fa-solid fa-plus"></i> Add Experience
+                      </button>
+                    </div>
+                    <div id="experienceContainer"></div>
+                  </div>
+                </div>
+
+                <!-- Certifications -->
+                <div class="editor-pane" data-pane="certifications">
+                  <div class="rf-form-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                      <div>
+                        <h4 class="rf-section-heading">Certifications</h4>
+                        <p class="rf-section-subheading">Add NPTEL, Coursera, freeCodeCamp, Udemy, or institute certifications.</p>
+                      </div>
+                      <button type="button" class="btn rf-btn rf-btn-primary-sm" data-action="add-certification">
+                        <i class="fa-solid fa-plus"></i> Add Certification
+                      </button>
+                    </div>
+                    <div id="certificationsContainer"></div>
+                  </div>
+                </div>
+
+                <!-- Achievements -->
+                <div class="editor-pane" data-pane="achievements">
+                  <div class="rf-form-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                      <div>
+                        <h4 class="rf-section-heading">Achievements / Extra Activities</h4>
+                        <p class="rf-section-subheading">Add coding achievements, college leadership, events, or competition wins.</p>
+                      </div>
+                      <button type="button" class="btn rf-btn rf-btn-primary-sm" data-action="add-achievement">
+                        <i class="fa-solid fa-plus"></i> Add Achievement
+                      </button>
+                    </div>
+                    <div id="achievementsContainer"></div>
+                  </div>
+                </div>
+
+                <!-- Languages -->
+                <div class="editor-pane" data-pane="languages">
+                  <div class="rf-form-section">
+                    <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+                      <div>
+                        <h4 class="rf-section-heading">Languages</h4>
+                        <p class="rf-section-subheading">Add spoken or written languages.</p>
+                      </div>
+                      <button type="button" class="btn rf-btn rf-btn-primary-sm" data-action="add-language">
+                        <i class="fa-solid fa-plus"></i> Add Language
+                      </button>
+                    </div>
+                    <div id="languagesContainer"></div>
+                  </div>
+                </div>
+
+                <!-- Settings -->
+                <div class="editor-pane" data-pane="settings">
+                  <div class="rf-form-section">
+                    <div class="row g-4">
+                      <div class="col-12">
+                        <div class="rf-settings-card">
+                          <h4 class="rf-section-heading mb-3">Template Switcher</h4>
+                          <div class="row g-3">
+                            <div class="col-md-4">
+                              <div class="template-card active" data-template="modern">
+                                <div class="template-preview modern-preview"></div>
+                                <div class="template-name">Modern Sidebar</div>
+                                <div class="template-desc">Premium sidebar layout for developers.</div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="template-card" data-template="minimal">
+                                <div class="template-preview minimal-preview"></div>
+                                <div class="template-name">Minimal Clean</div>
+                                <div class="template-desc">Simple, elegant single-column resume.</div>
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="template-card" data-template="corporate">
+                                <div class="template-preview corporate-preview"></div>
+                                <div class="template-name">Corporate Pro</div>
+                                <div class="template-desc">Structured recruiter-friendly layout.</div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-12">
+                        <div class="rf-settings-card">
+                          <h4 class="rf-section-heading mb-3">Section Visibility</h4>
+                          <div class="row g-3">
+                            <div class="col-md-4">
+                              <label class="rf-toggle-card">
+                                <div>
+                                  <div class="rf-toggle-title">Skills</div>
+                                  <div class="rf-toggle-sub">Show skills section</div>
+                                </div>
+                                <input type="checkbox" class="form-check-input section-visibility-toggle" data-section="skills" checked />
+                              </label>
+                            </div>
+                            <div class="col-md-4">
+                              <label class="rf-toggle-card">
+                                <div>
+                                  <div class="rf-toggle-title">Projects</div>
+                                  <div class="rf-toggle-sub">Show projects section</div>
+                                </div>
+                                <input type="checkbox" class="form-check-input section-visibility-toggle" data-section="projects" checked />
+                              </label>
+                            </div>
+                            <div class="col-md-4">
+                              <label class="rf-toggle-card">
+                                <div>
+                                  <div class="rf-toggle-title">Experience</div>
+                                  <div class="rf-toggle-sub">Show experience section</div>
+                                </div>
+                                <input type="checkbox" class="form-check-input section-visibility-toggle" data-section="experience" checked />
+                              </label>
+                            </div>
+                            <div class="col-md-4">
+                              <label class="rf-toggle-card">
+                                <div>
+                                  <div class="rf-toggle-title">Certifications</div>
+                                  <div class="rf-toggle-sub">Show certifications section</div>
+                                </div>
+                                <input type="checkbox" class="form-check-input section-visibility-toggle" data-section="certifications" checked />
+                              </label>
+                            </div>
+                            <div class="col-md-4">
+                              <label class="rf-toggle-card">
+                                <div>
+                                  <div class="rf-toggle-title">Achievements</div>
+                                  <div class="rf-toggle-sub">Show achievements section</div>
+                                </div>
+                                <input type="checkbox" class="form-check-input section-visibility-toggle" data-section="achievements" checked />
+                              </label>
+                            </div>
+                            <div class="col-md-4">
+                              <label class="rf-toggle-card">
+                                <div>
+                                  <div class="rf-toggle-title">Languages</div>
+                                  <div class="rf-toggle-sub">Show languages section</div>
+                                </div>
+                                <input type="checkbox" class="form-check-input section-visibility-toggle" data-section="languages" checked />
+                              </label>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <!-- End Settings -->
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Preview -->
+        <div class="col-12 col-xl-6">
+          <div class="rf-preview-sticky">
+            <div class="rf-panel rf-preview-panel">
+              <div class="rf-panel-head">
+                <div>
+                  <h2 class="rf-panel-title">Live Resume Preview</h2>
+                  <p class="rf-panel-subtitle">Your resume updates instantly as you type.</p>
+                </div>
+              </div>
+
+              <div class="rf-preview-shell">
+                <div id="resumePreview"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- Toast -->
+    <div class="toast-container position-fixed bottom-0 end-0 p-3">
+      <div id="appToast" class="toast align-items-center text-bg-dark border-0" role="alert" aria-live="assertive" aria-atomic="true">
+        <div class="d-flex">
+          <div class="toast-body" id="toastMessage">Saved successfully</div>
+          <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bootstrap JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+  <!-- App JS -->
+  <script src="script.js"></script>
+</body>
+</html>
