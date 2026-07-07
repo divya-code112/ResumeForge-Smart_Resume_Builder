@@ -78,3 +78,6 @@ ResumeForge/
 │── style.css
 │── script.js
 │── README.md
+
+Author
+Divya Lawand
